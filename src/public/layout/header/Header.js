@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useCart } from '../../hook/cart/useCartQuery';
-import { useFavorites } from '../../hook/favorites/useFavoritesQuery';
-import { useAuth } from '../../context/authContext/UserAuthContext';
-import TopBar from './TopBar';
-import MainHeader from './MainHeader';
-import NavBar from './NavBar';
-import './Header.css';
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useCart } from "../../hook/cart/useCartQuery";
+import { useFavorites } from "../../hook/favorites/useFavoritesQuery";
+import { useAuth } from "../../context/authContext/UserAuthContext";
+import TopBar from "./TopBar";
+import MainHeader from "./MainHeader";
+import NavBar from "./NavBar";
+import "./Header.css";
 
 const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -28,8 +28,15 @@ const Header = () => {
     const isAuthenticated = !!user;
     const username = user?.username || null;
 
-    const { cartItems, error: cartError, isLoading: cartLoading } = useCart({ enabled: isAuthenticated });
-    const { data: favoritesData, error: favoritesError, refetch: refetchFavorites, isLoading: favoritesLoading } = useFavorites({ enabled: isAuthenticated });
+    const { cartItems, error: cartError, isLoading: cartLoading } = useCart({
+        enabled: isAuthenticated,
+    });
+    const {
+        data: favoritesData,
+        error: favoritesError,
+        refetch: refetchFavorites,
+        isLoading: favoritesLoading,
+    } = useFavorites({ enabled: isAuthenticated });
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -65,15 +72,18 @@ const Header = () => {
             if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
                 setIsProfileMenuOpen(false);
             }
-            if (navRef.current && !navRef.current.contains(event.target) &&
-                (!dropdownRef.current || !dropdownRef.current.contains(event.target))) {
+            if (
+                navRef.current &&
+                !navRef.current.contains(event.target) &&
+                (!dropdownRef.current || !dropdownRef.current.contains(event.target))
+            ) {
                 setIsMobileMenuOpen(false);
                 setActiveDropdown(null);
             }
         };
 
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     const debounce = useCallback((func, wait) => {
@@ -86,15 +96,24 @@ const Header = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-            const isScrollingUp = currentScrollY < lastScrollY.current;
-            const isAtTop = currentScrollY <= 50;
+            if (isMobile) {
+                // Disable scrolled effects on mobile
+                setShowTopBar(true);
+                setShowNavBar(true);
+                setCompact(false);
+                setIsScrolled(false);
+            } else {
+                // Apply scroll behavior only on desktop
+                const currentScrollY = window.scrollY;
+                const isScrollingUp = currentScrollY < lastScrollY.current;
+                const isAtTop = currentScrollY <= 50;
 
-            setShowTopBar(isAtTop);
-            setShowNavBar(isScrollingUp || isAtTop);
-            setCompact(currentScrollY > 50 && !isScrollingUp);
-            setIsScrolled(currentScrollY > 50);
-            lastScrollY.current = currentScrollY;
+                setShowTopBar(isAtTop);
+                setShowNavBar(isScrollingUp || isAtTop);
+                setCompact(currentScrollY > 50 && !isScrollingUp);
+                setIsScrolled(currentScrollY > 50);
+                lastScrollY.current = currentScrollY;
+            }
         };
 
         const handleResize = debounce(() => {
@@ -107,16 +126,16 @@ const Header = () => {
             }
         }, 100);
 
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        window.addEventListener('resize', handleResize);
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        window.addEventListener("resize", handleResize);
         return () => {
-            window.removeEventListener('scroll', handleScroll);
-            window.removeEventListener('resize', handleResize);
+            window.removeEventListener("scroll", handleScroll);
+            window.removeEventListener("resize", handleResize);
         };
-    }, [debounce]);
+    }, [debounce, isMobile]);
 
     useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: "smooth" });
         setIsProfileMenuOpen(false);
         setIsMobileMenuOpen(false);
         setActiveDropdown(null);
@@ -132,17 +151,32 @@ const Header = () => {
     }, []);
 
     return (
-        <header className={`public-header-container ${isScrolled ? 'public-scrolled' : ''} ${compact ? 'compact' : ''}`}>
+        <header
+            className={`public-header-container ${isScrolled && !isMobile ? "public-scrolled" : ""
+                } ${compact ? "compact" : ""}`}
+        >
             <TopBar
                 announcement="🔥 Free Shipping on Orders Above ₹50,000 | Special Discounts This Week!"
-                className={showTopBar ? '' : 'hide-top-bar'}
+                className={showTopBar ? "" : "hide-top-bar"}
             />
             <MainHeader
                 isMobile={isMobile}
                 isAuthenticated={isAuthenticated}
                 username={username}
-                wishlistCount={favoritesLoading ? 0 : (isAuthenticated && Array.isArray(favoritesData?.data) ? favoritesData.data.length : 0)}
-                cartCount={cartLoading ? 0 : (isAuthenticated && Array.isArray(cartItems?.data) ? cartItems.data.length : 0)}
+                wishlistCount={
+                    favoritesLoading
+                        ? 0
+                        : isAuthenticated && Array.isArray(favoritesData?.data)
+                            ? favoritesData.data.length
+                            : 0
+                }
+                cartCount={
+                    cartLoading
+                        ? 0
+                        : isAuthenticated && Array.isArray(cartItems?.data)
+                            ? cartItems.data.length
+                            : 0
+                }
                 handleProfileClick={handleProfileClick}
                 isProfileMenuOpen={isProfileMenuOpen}
                 setIsProfileMenuOpen={setIsProfileMenuOpen}
@@ -160,7 +194,7 @@ const Header = () => {
                 navRef={navRef}
                 dropdownRef={dropdownRef}
                 location={location}
-                className={showNavBar ? '' : 'hide-nav-bar'}
+                className={showNavBar ? "" : "hide-nav-bar"}
             />
         </header>
     );

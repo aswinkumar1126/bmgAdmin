@@ -1,4 +1,33 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Montserrat:wght@500;600;700&family=Poppins:wght@400;500;600&display=swap');
+/* Root variables (unchanged from previous) */
+:root {
+    --primary-color: #d4af37;
+    --secondary-color: #1a1a1a;
+    --text-color: #000000;
+    --text-light: #1b1b1b;
+    --bg-primary: #fff;
+    --bg-secondary: #f9f9f9;
+    --nav-bg: linear-gradient(135deg, rgb(253, 101, 0), #da6e09);
+    --nav-bg-scrolled: linear-gradient(135deg, rgb(243, 121, 40), #f18b2b);
+    --wishlist-color: #e91e63;
+    --cart-color: #e91700;
+    --overlay-color: rgba(0, 0, 0, 0.5);
+    --border-radius: 8px;
+    --transition-speed: 0.3s;
+    --nav-height: 50px;
+    --spacing-unit: 1rem;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --box-shadow-scrolled: 0 6px 20px rgba(0, 0, 0, 0.15);
+    --top-bar-height: 30px;
+    --main-header-height: 65px;
+    --nav-bar-height: 50px;
+    --modal-bg: linear-gradient(145deg, #ffffff, #f9f9f9);
+    --modal-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    --modal-shadow-enhanced: 0 16px 32px rgba(0, 0, 0, 0.25);
+    --font-size-medium: 1rem;
+    --font-family-primary: 'Lora', serif;
+    --font-family-secondary: 'Playfair Display', serif;
+    --font-family-ui: 'Inter', sans-serif;
+}
 
 /* Base Styles */
 .product-card {
@@ -6,38 +35,48 @@
     background: inherit;
     border-radius: 0 !important;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    /* Lighter shadow for compactness */
+    transition: all var(--transition-speed) cubic-bezier(0.25, 0.8, 0.25, 1);
     display: flex;
     flex-direction: column;
-    height: 100%;
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--font-family-primary);
+      
+        width: 100%;
+            max-width: 300px;
+    /* Lora for body text */
 }
 
 .product-card:hover {
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    /* Slightly smaller shadow */
+    transform: translateY(-3px) scale(1.02);
 }
 
 /* Badges */
 .product-card__badge {
     position: absolute;
-    top: 12px;
-    left: 12px;
+    top: 10px;
+    /* Reduced for compactness */
+    left: 10px;
     z-index: 2;
     display: flex;
-    gap: 8px;
+    gap: 6px;
+    /* Smaller gap */
 }
 
 .badge {
-    padding: 4px 10px;
+    padding: 2px 6px;
+    /* Smaller padding */
     border-radius: 4px;
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 11px;
+    /* Slightly smaller */
+    font-weight: 600;
     color: white;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 0.4px;
+    font-family: var(--font-family-ui);
+    /* Inter for badges */
 }
 
 .badge--new {
@@ -68,7 +107,7 @@
 }
 
 .AnimatePresence .motion.div {
-    transition-duration: 0.3s !important;
+    transition-duration: var(--transition-speed) !important;
 }
 
 .product-card__image {
@@ -78,56 +117,62 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: opacity 0.3s ease;
+    transition: opacity var(--transition-speed) ease;
 }
 
 /* Quick View Button */
 .product-card__quick-view {
     position: absolute;
-    bottom: 15px;
+    bottom: 12px;
+    /* Reduced */
     left: 55%;
     transform: translateX(-50%);
     background: rgba(255, 255, 255, 0.95);
-    color: #333;
+    color: var(--text-color);
     border: none;
-    padding: 8px 20px;
-    border-radius: 25px;
+    padding: 6px 16px;
+    /* Smaller padding */
+    border-radius: 20px;
+    /* Smaller radius */
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     font-size: 10px;
     font-weight: 600;
     cursor: pointer;
     z-index: 2;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    font-family: 'Poppins', sans-serif;
-    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all var(--transition-speed) ease;
+    font-family: var(--font-family-ui);
+    /* Inter for buttons */
+    letter-spacing: 0.4px;
 }
 
 .product-card__quick-view:hover {
     background: #fff;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transform: translateX(-50%) scale(1.05);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+    transform: translateX(-50%) scale(1.03);
 }
 
 /* Wishlist Button */
 .product-card__wishlist {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 12px;
+    /* Reduced */
+    right: 12px;
     background: rgba(255, 255, 255, 0.95);
     border: none;
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    /* Slightly smaller */
+    height: 34px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     z-index: 2;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: all var(--transition-speed) ease;
 }
 
 .product-card__wishlist.active {
@@ -144,7 +189,7 @@
     }
 
     50% {
-        transform: scale(1.3);
+        transform: scale(1.2);
     }
 
     100% {
@@ -157,118 +202,48 @@
 }
 
 .outline-heart {
-    color: #666;
+    color: var(--text-light);
 }
 
 /* Product Info */
 .product-card__info {
-    padding: 18px 15px;
+    padding: 14px 12px;
+    /* Reduced padding */
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+    /* Smaller gap */
     flex-grow: 1;
 }
 
 .product-card__name {
-    font-size: 14px;
+    font-size: 13px;
+    /* Slightly smaller */
     font-weight: 600;
-    color: #333;
+    color: var(--text-color);
     margin: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: color 0.3s ease;
-    font-family: serif;
+    transition: color var(--transition-speed) ease;
+    font-family: var(--font-family-secondary);
+    /* Playfair Display for name */
     letter-spacing: 0.3px;
 }
 
 .product-card__price {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    /* Smaller gap */
     margin-top: auto;
 }
 
 .product-card__current-price {
-    font-size: 16px;
+    font-size: 15px;
+    /* Slightly smaller */
     font-weight: 700;
-    color: #d47637;
-    font-family: 'Montserrat', sans-serif;
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-    .product-card__name {
-        font-size: 15px;
-    }
-
-    .product-card__current-price {
-        font-size: 16px;
-    }
-}
-
-@media (max-width: 992px) {
-    .product-card {
-        border-radius: 10px;
-    }
-
-    .product-card__quick-view {
-        padding: 6px 15px;
-        font-size: 13px;
-    }
-
-    .product-card__name {
-        font-size: 14px;
-    }
-
-    .product-card__current-price {
-        font-size: 15px;
-    }
-}
-
-@media (max-width: 768px) {
-    .product-card__info {
-        padding: 12px 10px;
-    }
-
-    .product-card__name {
-        font-size: 13px;
-    }
-
-    .product-card__current-price {
-        font-size: 14px;
-    }
-
-    .badge {
-        font-size: 10px;
-        padding: 3px 8px;
-    }
-}
-
-@media (max-width: 576px) {
-    .product-card {
-        border-radius: 8px;
-    }
-
-    .product-card__quick-view {
-        padding: 5px 12px;
-        font-size: 10px;
-    }
-
-    .product-card__wishlist {
-        width: 32px;
-        height: 32px;
-    }
-
-    .product-card__info {
-        padding: 10px 8px;
-    }
-
-    .product-card__name {
-        font-size: 12px;
-    }
-
-    .product-card__current-price {
-        font-size: 13px;
-    }
+    color: var(--primary-color);
+    font-family: var(--font-family-primary);
+    /* Lora for price */
 }

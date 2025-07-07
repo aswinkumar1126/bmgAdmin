@@ -1,5 +1,4 @@
 .home-section {
-    padding: 10px;
     gap: 40px;
     background-color: #f9ffff;
     overflow-x: hidden;
@@ -48,7 +47,6 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .home-section {
-        padding: 15px;
         gap: 30px;
     }
 

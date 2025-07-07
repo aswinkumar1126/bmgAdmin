@@ -169,7 +169,7 @@ const ProductDetails = () => {
     if (isError) {
         console.error("Product fetch error:", error);
         return <Error error={error} />;
-      }
+    }
     if (isLoading || !productDetail) return <SkeletonLoader count={1} type="details" />;
 
     if (productDetail.METALID === 'G') productDetail.METALID = 'GOLD';

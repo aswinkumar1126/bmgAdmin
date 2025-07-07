@@ -504,6 +504,7 @@
     margin: 0;
     font-size: 0.95rem;
 }
+
 .image-nav-button {
     position: absolute;
     top: 50%;
@@ -795,20 +796,21 @@
         padding: 8px 15px;
         font-size: 0.9rem;
     }
-        .image-nav-button {
-            width: 36px;
-            height: 36px;
-        }
-    
-        .modal-nav-button {
-            width: 40px;
-            height: 40px;
-        }
-    
-        .close-modal {
-            width: 36px;
-            height: 36px;
-        }
+
+    .image-nav-button {
+        width: 36px;
+        height: 36px;
+    }
+
+    .modal-nav-button {
+        width: 40px;
+        height: 40px;
+    }
+
+    .close-modal {
+        width: 36px;
+        height: 36px;
+    }
 }
 
 @media (max-width: 576px) {
@@ -850,22 +852,23 @@
     .price-section {
         justify-content: flex-start;
     }
-        .image-nav-button {
-            width: 32px;
-            height: 32px;
-            opacity: 1;
-            background: rgba(255, 255, 255, 0.7);
-        }
-    
-        .modal-nav-button {
-            width: 36px;
-            height: 36px;
-        }
-    
-        .close-modal {
-            width: 32px;
-            height: 32px;
-            top: 10px;
-            right: 10px;
-        }
+
+    .image-nav-button {
+        width: 32px;
+        height: 32px;
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.7);
+    }
+
+    .modal-nav-button {
+        width: 36px;
+        height: 36px;
+    }
+
+    .close-modal {
+        width: 32px;
+        height: 32px;
+        top: 10px;
+        right: 10px;
+    }
 }

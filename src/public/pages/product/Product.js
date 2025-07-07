@@ -8,26 +8,28 @@ import ProductCard from "../../components/productCard/ProductCard";
 import MobileProductCard from "../../components/productCard/MobileProductCard";
 import Button from "../../components/button/Button";
 import { useCart } from "../../hook/cart/useCartQuery";
-import "./Product.css";
+import "./Product.css"; // Renamed CSS file
 
 function Product({ products = [], loading, error }) {
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 1316);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 767);
+    const [isTablet, setIsTablet] = useState(window.innerWidth >= 768 && window.innerWidth <= 1023);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [showArrows, setShowArrows] = useState(false);
     const user = localStorage.getItem("user");
     const navigate = useNavigate();
     const { addToCartHandler } = useCart();
     const carouselRef = useRef(null);
+    const [isTransitioning, setIsTransitioning] = useState(false);
 
     // Responsive product count
-    const productsPerPage = isMobile ? 2 : 4;
+    const productsPerPage = isMobile ? 2 : isTablet ? 3 : 4;
     const totalProducts = products.length;
 
     // Handle screen size changes
     useEffect(() => {
         const checkScreenSize = () => {
-            setIsMobile(window.innerWidth <= 768);
-            setCurrentIndex(0); // Reset index on resize to avoid overflow
+            setIsMobile(window.innerWidth <= 767);
+            setIsTablet(window.innerWidth >= 768 && window.innerWidth <= 1023);
         };
 
         checkScreenSize();
@@ -35,17 +37,15 @@ function Product({ products = [], loading, error }) {
         return () => window.removeEventListener("resize", checkScreenSize);
     }, []);
 
-    // Auto-scroll carousel on desktop
+    // Auto-scroll carousel on non-mobile devices
     useEffect(() => {
         if (!isMobile && totalProducts > productsPerPage) {
             const interval = setInterval(() => {
-                setCurrentIndex((prev) =>
-                    prev >= totalProducts - productsPerPage ? 0 : prev + 1
-                );
+                handleNext();
             }, 5000);
             return () => clearInterval(interval);
         }
-    }, [isMobile, totalProducts, productsPerPage]);
+    }, [isMobile, totalProducts, productsPerPage, currentIndex]);
 
     // Swipe handlers
     const handlers = useSwipeable({
@@ -56,19 +56,33 @@ function Product({ products = [], loading, error }) {
     });
 
     const handlePrev = useCallback(() => {
-        setCurrentIndex((prev) =>
+        if (isTransitioning) return;
+
+        setIsTransitioning(true);
+        setCurrentIndex(prev =>
             prev === 0 ? totalProducts - productsPerPage : prev - 1
         );
-    }, [totalProducts, productsPerPage]);
+        setTimeout(() => setIsTransitioning(false), 300);
+    }, [totalProducts, productsPerPage, isTransitioning]);
 
     const handleNext = useCallback(() => {
-        setCurrentIndex((prev) =>
+        if (isTransitioning) return;
+
+        setIsTransitioning(true);
+        setCurrentIndex(prev =>
             prev >= totalProducts - productsPerPage ? 0 : prev + 1
         );
-    }, [totalProducts, productsPerPage]);
+        setTimeout(() => setIsTransitioning(false), 300);
+    }, [totalProducts, productsPerPage, isTransitioning]);
 
     const getVisibleProducts = useCallback(() => {
-        const endIndex = Math.min(currentIndex + productsPerPage, totalProducts);
+        let endIndex = currentIndex + productsPerPage;
+        if (endIndex > totalProducts) {
+            return [
+                ...products.slice(currentIndex),
+                ...products.slice(0, endIndex - totalProducts)
+            ];
+        }
         return products.slice(currentIndex, endIndex);
     }, [currentIndex, productsPerPage, totalProducts, products]);
 
@@ -108,20 +122,21 @@ function Product({ products = [], loading, error }) {
     }
 
     return (
-        <section className="product-container" aria-label="Premium Product Collection">
-            <header className="page-header">
-                <h2 className="title animate-char">Our Premium Collection</h2>
+        <section className="pc-container" aria-label="Premium Product Collection">
+            <header className="pc-header">
+                <h2 className="pc-title">Our Premium Collection</h2>
+                <p className="pc-subtitle">Exquisite craftsmanship for discerning tastes</p>
             </header>
 
             <div
-                className="product-carousel-wrapper"
+                className="pc-carousel-wrapper"
                 onMouseEnter={() => !isMobile && setShowArrows(true)}
                 onMouseLeave={() => !isMobile && setShowArrows(false)}
                 ref={carouselRef}
                 {...handlers}
             >
                 {loading ? (
-                    <div className={`product-grid ${isMobile ? "mobile-view" : ""}`}>
+                    <div className={`pc-grid ${isMobile ? "pc-mobile-view" : isTablet ? "pc-tablet-view" : ""}`}>
                         {[...Array(productsPerPage)].map((_, i) => (
                             <SkeletonLoader
                                 key={`skel-${i}`}
@@ -135,18 +150,20 @@ function Product({ products = [], loading, error }) {
                         {showArrows && !isMobile && (
                             <>
                                 <button
-                                    className="carousel-arrow left-arrow"
+                                    className="pc-arrow pc-left-arrow"
                                     onClick={handlePrev}
                                     aria-label="Previous product set"
                                     type="button"
+                                    disabled={isTransitioning}
                                 >
                                     <FaArrowLeft aria-hidden="true" />
                                 </button>
                                 <button
-                                    className="carousel-arrow right-arrow"
+                                    className="pc-arrow pc-right-arrow"
                                     onClick={handleNext}
                                     aria-label="Next product set"
                                     type="button"
+                                    disabled={isTransitioning}
                                 >
                                     <FaArrowRight aria-hidden="true" />
                                 </button>
@@ -154,14 +171,14 @@ function Product({ products = [], loading, error }) {
                         )}
 
                         <div
-                            className={`product-grid ${isMobile ? "mobile-view" : ""}`}
+                            className={`pc-grid ${isMobile ? "pc-mobile-view" : isTablet ? "pc-tablet-view" : ""} ${isTransitioning ? "pc-transitioning" : ""}`}
                             role="region"
                             aria-label="Product carousel"
                         >
-                            {getVisibleProducts().map((product) => (
+                            {getVisibleProducts().map((product, index) => (
                                 isMobile ? (
                                     <MobileProductCard
-                                        key={`mobile-${product.SNO}`}
+                                        key={`mobile-${product.SNO}-${index}`}
                                         product={product}
                                         onQuickView={() => navigate(`/product/${product.SNO}`)}
                                         onAddToCart={() => handleAddToCart(product)}
@@ -169,7 +186,7 @@ function Product({ products = [], loading, error }) {
                                     />
                                 ) : (
                                     <ProductCard
-                                        key={`desk-${product.SNO}`}
+                                        key={`desk-${product.SNO}-${index}`}
                                         product={product}
                                         onQuickView={() => navigate(`/product/${product.SNO}`)}
                                         onAddToCart={() => handleAddToCart(product)}
@@ -179,32 +196,32 @@ function Product({ products = [], loading, error }) {
                             ))}
                         </div>
 
-                        {isMobile && totalProducts > productsPerPage && (
-                            <div className="mobile-carousel-controls" role="navigation">
+                        {(isMobile || isTablet) && totalProducts > productsPerPage && (
+                            <div className="pc-mobile-controls" role="navigation">
                                 <button
                                     onClick={handlePrev}
                                     aria-label="Previous product set"
                                     type="button"
+                                    disabled={isTransitioning}
                                 >
                                     <FaArrowLeft aria-hidden="true" />
                                 </button>
-                                <div className="carousel-dots">
+                                <div className="pc-dots">
                                     {Array.from({
                                         length: Math.ceil(totalProducts / productsPerPage),
                                     }).map((_, i) => (
                                         <button
                                             key={i}
-                                            className={`dot ${i === Math.floor(currentIndex / productsPerPage)
-                                                    ? "active"
-                                                    : ""
-                                                }`}
-                                            onClick={() => setCurrentIndex(i * productsPerPage)}
+                                            className={`pc-dot ${i === Math.floor(currentIndex / productsPerPage) ? "pc-active" : ""}`}
+                                            onClick={() => {
+                                                if (!isTransitioning) {
+                                                    setIsTransitioning(true);
+                                                    setCurrentIndex(i * productsPerPage);
+                                                    setTimeout(() => setIsTransitioning(false), 300);
+                                                }
+                                            }}
                                             aria-label={`Go to product set ${i + 1}`}
-                                            aria-current={
-                                                i === Math.floor(currentIndex / productsPerPage)
-                                                    ? "true"
-                                                    : "false"
-                                            }
+                                            aria-current={i === Math.floor(currentIndex / productsPerPage) ? "true" : "false"}
                                         />
                                     ))}
                                 </div>
@@ -212,6 +229,7 @@ function Product({ products = [], loading, error }) {
                                     onClick={handleNext}
                                     aria-label="Next product set"
                                     type="button"
+                                    disabled={isTransitioning}
                                 >
                                     <FaArrowRight aria-hidden="true" />
                                 </button>
@@ -219,22 +237,27 @@ function Product({ products = [], loading, error }) {
                         )}
                     </>
                 ) : (
-                    <div className="no-products" role="alert">
-                        No products available at this time
+                    <div className="pc-no-products" role="alert">
+                        <div className="pc-no-products-content">
+                            <h3>No Products Available</h3>
+                            <p>We're currently updating our collection. Please check back soon.</p>
+                        </div>
                     </div>
                 )}
             </div>
 
-            <div className="see-more-wrapper">
-                <Button
-                    label="Explore More Products"
-                    onClick={() => navigate("/products")}
-                    variant="primary"
-                    size="large"
-                    className="see-more-btn"
-                    aria-label="View all products"
-                />
-            </div>
+            {products.length > 0 && (
+                <div className="pc-see-more">
+                    <Button
+                        label="Explore More Products"
+                        onClick={() => navigate("/products")}
+                        variant="primary"
+                        size="large"
+                        className="pc-see-more-btn"
+                        aria-label="View all products"
+                    />
+                </div>
+            )}
         </section>
     );
 }

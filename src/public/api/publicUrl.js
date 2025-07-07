@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
-const BASE_URL = process.env.REACT_APP_BASE_URL;
-// console.log(BASE_URL);
+const BASE_URL = 'http://localhost:8081/api/v1';
+console.log(BASE_URL);
 
 const PublicUrl = axios.create({
     baseURL: BASE_URL,

@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaChevronDown, FaTimes } from 'react-icons/fa';
-import { useQuery } from '@tanstack/react-query';
-import { getItemAndSubItemNames } from '../../service/CategoryItemsService';
+import { FaChevronDown } from 'react-icons/fa';
+import { useCategories } from '../../hook/category/useCategoryQuery';
+import { useCategoryProducts } from '../../hook/category/useCategoryProducts';
 import Search from '../../components/search/Search';
 import RatesCard from '../../components/rateCard/RatesCard';
 import './Header.css';
-import image1 from '../../assets/images/nav1.jpg';
-import image2 from '../../assets/images/nav2.jpg';
+
+const formatForURL = (str) => str.replace(/_/g, '-').replace(/\s+/g, '-').toLowerCase();
+const formatForDisplay = (str) => str.replace(/_/g, ' ').toUpperCase();
+const formatForCategoryDisplay = (str) => str.replace(/_/g, ' ').toLowerCase();
 
 const NavBar = ({
     isMobile,
@@ -24,59 +26,35 @@ const NavBar = ({
 }) => {
     const [activeSubmenu, setActiveSubmenu] = useState(null);
 
-    const navItems = [
-        { name: 'HOME', path: '/home', metal: null },
-        { name: 'GOLD', path: '/products?metalId=G', submenu: true, metal: 'G' },
-        { name: 'SILVER', path: '/products?metalId=S', submenu: true, metal: 'S' },
-        { name: 'DIAMOND', path: '/products?metalId=D', submenu: true, metal: 'D' },
-        { name: 'ALL PRODUCTS', path: '/products', metal: null },
-        { name: 'VIDEOS', path: '/videos', metal: null },
+    // Static nav items - removed "ALL PRODUCTS" as requested
+    const staticNavItems = [
+        { name: 'HOME', path: '/home' },
+        { name: 'VIDEOS', path: '/videos' },
     ];
 
-    const goldItems = useQuery({
-        queryKey: ['itemNames', 'G'],
-        queryFn: () => getItemAndSubItemNames('G'),
-        enabled: true,
-        staleTime: 5 * 60 * 1000,
-    });
+    // Fetch categories
+    const { data: categories, isLoading: isCategoriesLoading } = useCategories();
 
-    const silverItems = useQuery({
-        queryKey: ['itemNames', 'S'],
-        queryFn: () => getItemAndSubItemNames('S'),
-        enabled: true,
-        staleTime: 5 * 60 * 1000,
-    });
+    // Format categories for display and URLs
+    const formattedCategories = useMemo(() =>
+        categories?.map(category => category.replace(/_/g, ' ')) || [],
+        [categories]
+    );
 
-    const diamondItems = useQuery({
-        queryKey: ['itemNames', 'D'],
-        queryFn: () => getItemAndSubItemNames('D'),
-        enabled: true,
-        staleTime: 5 * 60 * 1000,
-    });
+    // Fetch products for all categories
+    const { data: categoryProducts, isLoading: isProductsLoading } = useCategoryProducts(formattedCategories);
 
-    const itemQueries = {
-        G: goldItems,
-        S: silverItems,
-        D: diamondItems,
-    };
-
-    const groupItemsByCategory = (items) => {
-        if (!items) return [];
-
-        const categories = {};
-        items.forEach((item) => {
-            const category = item.CATEGORY || 'Other';
-            if (!categories[category]) {
-                categories[category] = [];
-            }
-            categories[category].push(item);
-        });
-
-        return Object.entries(categories).map(([title, items]) => ({
-            title,
-            items,
-        }));
-    };
+    // Combine static and dynamic nav items - categories will appear between HOME and VIDEOS
+    const navItems = [
+        staticNavItems[0], // HOME
+        ...(categories?.map((category) => ({
+            name: formatForDisplay(category),
+            path: `/products/?catname=${formatForCategoryDisplay(category)}`,
+            submenu: true,
+            categoryKey: category.replace(/_/g, ' ')
+        })) || []),
+        staticNavItems[1] // VIDEOS
+    ];
 
     const handleItemClick = (e, item) => {
         if (item.submenu) {
@@ -96,21 +74,35 @@ const NavBar = ({
         }
     };
 
-    const toggleSubmenu = (categoryTitle) => {
-        setActiveSubmenu((prev) => (prev === categoryTitle ? null : categoryTitle));
+    const toggleSubmenu = (categoryName) => {
+        setActiveSubmenu((prev) => (prev === categoryName ? null : categoryName));
     };
 
     const isNavItemActive = (navItem) => {
-        const searchParams = new URLSearchParams(location.search);
-        const currentMetalId = searchParams.get('metalId');
-
-        if (navItem.metal) {
-            return location.pathname === '/products' && currentMetalId === navItem.metal;
-        } else if (navItem.name === 'ALL PRODUCTS') {
-            return location.pathname === '/products' && !currentMetalId;
-        } else {
-            return location.pathname === navItem.path;
+        if (navItem.submenu) {
+            return location.pathname.startsWith(navItem.path);
         }
+        return location.pathname === navItem.path;
+    };
+
+    // Function to count product variants and get unique items
+    const getUniqueItemsWithCounts = (items) => {
+        const countMap = {};
+        const uniqueItems = [];
+
+        items?.forEach(item => {
+            if (!countMap[item.ITEMNAME]) {
+                countMap[item.ITEMNAME] = {
+                    count: 1,
+                    firstItem: item
+                };
+                uniqueItems.push(item);
+            } else {
+                countMap[item.ITEMNAME].count++;
+            }
+        });
+
+        return { uniqueItems, countMap };
     };
 
     return (
@@ -135,11 +127,11 @@ const NavBar = ({
             )}
             <ul className="public-nav-list">
                 {navItems.map((navItem) => {
-                    const { data: items, isLoading, error } = navItem.submenu
-                        ? itemQueries[navItem.metal]
-                        : { data: null, isLoading: false, error: null };
+                    const items = navItem.submenu
+                        ? categoryProducts?.[navItem.categoryKey] || []
+                        : null;
 
-                    const groupedCategories = navItem.submenu ? groupItemsByCategory(items) : [];
+                    const { uniqueItems, countMap } = getUniqueItemsWithCounts(items);
 
                     return (
                         <li
@@ -150,7 +142,7 @@ const NavBar = ({
                         >
                             <NavLink
                                 to={navItem.path}
-                                end={navItem.metal === null}
+                                end={!navItem.submenu}
                                 onClick={(e) => handleItemClick(e, navItem)}
                                 className={isNavItemActive(navItem) ? 'public-active-nav-link' : ''}
                                 aria-haspopup={navItem.submenu ? 'true' : 'false'}
@@ -192,7 +184,7 @@ const NavBar = ({
                                                         animate={{ opacity: 1, x: 0 }}
                                                         transition={{ delay: 0.15, duration: 0.4 }}
                                                     >
-                                                        {isLoading ? (
+                                                        {isProductsLoading ? (
                                                             <motion.div
                                                                 className="public-dropdown-loading"
                                                                 initial={{ opacity: 0 }}
@@ -200,150 +192,83 @@ const NavBar = ({
                                                                 transition={{ duration: 0.3 }}
                                                             >
                                                                 <div className="public-loading-spinner"></div>
-                                                                <span>Loading categories...</span>
+                                                                <span>Loading items...</span>
                                                             </motion.div>
-                                                        ) : error ? (
-                                                            <motion.div
-                                                                className="public-dropdown-error"
-                                                                initial={{ opacity: 0, scale: 0.9 }}
-                                                                animate={{ opacity: 1, scale: 1 }}
-                                                                transition={{ duration: 0.3 }}
-                                                            >
-                                                                Failed to load categories
-                                                            </motion.div>
-                                                        ) : groupedCategories.length === 0 ? (
+                                                        ) : !uniqueItems || uniqueItems.length === 0 ? (
                                                             <motion.div
                                                                 className="public-dropdown-empty"
                                                                 initial={{ opacity: 0, scale: 0.9 }}
                                                                 animate={{ opacity: 1, scale: 1 }}
                                                                 transition={{ duration: 0.3 }}
                                                             >
-                                                                No categories available
+                                                                No items available
                                                             </motion.div>
                                                         ) : (
-                                                            groupedCategories.map((category, catIndex) => (
+                                                            <>
                                                                 <motion.div
-                                                                    key={catIndex}
                                                                     className="public-dropdown-category-group"
                                                                     initial={{ opacity: 0, y: 20 }}
                                                                     animate={{ opacity: 1, y: 0 }}
-                                                                    transition={{
-                                                                        delay: 0.2 + catIndex * 0.08,
-                                                                        duration: 0.4,
-                                                                        ease: 'easeOut',
-                                                                    }}
+                                                                    transition={{ delay: 0.2, duration: 0.4, ease: 'easeOut' }}
                                                                 >
                                                                     <h4
                                                                         className="public-dropdown-category-title"
-                                                                        onClick={() => isMobile && toggleSubmenu(category.title)}
+                                                                        onClick={() => isMobile && toggleSubmenu(navItem.name)}
                                                                     >
-                                                                        {category.title}
+                                                                        {navItem.name}
                                                                         {isMobile && (
                                                                             <FaChevronDown
-                                                                                className={`public-dropdown-arrow ${activeSubmenu === category.title ? 'rotate' : ''
-                                                                                    }`}
+                                                                                className={`public-dropdown-arrow ${activeSubmenu === navItem.name ? 'rotate' : ''}`}
                                                                             />
                                                                         )}
                                                                     </h4>
                                                                     <ul
-                                                                        className={`public-dropdown-category-items ${isMobile && activeSubmenu === category.title ? 'show-submenu' : ''
-                                                                            }`}
+                                                                       className={`public-dropdown-categories-items ${
+                                                                        isMobile && (activeSubmenu === navItem.name || !isMobile) 
+                                                                          ? 'show-submenu' 
+                                                                          : ''
+                                                                      }`}
                                                                     >
-                                                                        {category.items.map((item, itemIndex) => (
+                                                                        {uniqueItems.map((item, itemIndex) => (
                                                                             <motion.li
-                                                                                key={`${catIndex}-${itemIndex}`}
+                                                                                key={itemIndex}
                                                                                 className="public-dropdown-item"
-                                                                                whileHover={{
-                                                                                    x: isMobile ? 0 : 5,
-                                                                                    transition: { duration: 0.2 },
-                                                                                }}
+                                                                                whileHover={{ x: isMobile ? 0 : 5, transition: { duration: 0.2 } }}
                                                                                 initial={{ opacity: 0, x: -10 }}
                                                                                 animate={{ opacity: 1, x: 0 }}
                                                                                 transition={{
-                                                                                    delay: 0.3 + (catIndex + itemIndex) * 0.03,
+                                                                                    delay: 0.3 + itemIndex * 0.03,
                                                                                     duration: 0.3,
                                                                                 }}
                                                                                 role="none"
                                                                             >
                                                                                 <NavLink
-                                                                                    to={`/${navItem.name.toLowerCase()}/${item.ITEMNAME.toLowerCase().replace(
-                                                                                        /\s+/g,
-                                                                                        '-'
-                                                                                    )}`}
+                                                                                    to={`/${formatForURL(navItem.categoryKey)}/${formatForURL(item.ITEMNAME)}`}
                                                                                     state={{
                                                                                         itemId: item.ITEMID,
                                                                                         itemName: item.ITEMNAME,
-                                                                                        metal: navItem.metal,
+                                                                                        category: navItem.categoryKey
                                                                                     }}
-                                                                                    className={({ isActive }) =>
-                                                                                        isActive ? 'public-active-subnav-link' : ''
-                                                                                    }
+                                                                                    className={({ isActive }) => (isActive ? 'public-active-subnav-link' : '')}
                                                                                     role="menuitem"
                                                                                     tabIndex={0}
                                                                                     onClick={closeMobileMenu}
                                                                                 >
-                                                                                    {item.ITEMNAME}
+                                                                                    <span className="public-dropdown-item-name">{item.ITEMNAME}</span>
+                                                                                    {countMap[item.ITEMNAME].count > 1 && (
+                                                                                        <span className="public-dropdown-item-count">
+                                                                                            ({countMap[item.ITEMNAME].count})
+                                                                                        </span>
+                                                                                    )}
                                                                                 </NavLink>
                                                                             </motion.li>
                                                                         ))}
                                                                     </ul>
                                                                 </motion.div>
-                                                            ))
+                                                               
+                                                            </>
                                                         )}
                                                     </motion.div>
-                                                    {!isMobile && (
-                                                        <motion.div
-                                                            className="public-dropdown-images"
-                                                            initial={{ opacity: 0, x: 30 }}
-                                                            animate={{ opacity: 1, x: 0 }}
-                                                            transition={{ delay: 0.2, duration: 0.4 }}
-                                                        >
-                                                            <motion.div
-                                                                className="public-dropdown-image-container"
-                                                                whileHover={{ scale: 1.03 }}
-                                                                transition={{ duration: 0.3 }}
-                                                            >
-                                                                <img
-                                                                    src={image1}
-                                                                    alt="Premium jewelry collection"
-                                                                    className="public-dropdown-image"
-                                                                    onError={(e) => {
-                                                                        e.target.style.display = 'none';
-                                                                    }}
-                                                                />
-                                                                <div className="public-image-overlay">
-                                                                    <span>Premium Collection</span>
-                                                                </div>
-                                                            </motion.div>
-                                                            <motion.div
-                                                                className="public-dropdown-image-container"
-                                                                whileHover={{ scale: 1.03 }}
-                                                                transition={{ duration: 0.3 }}
-                                                            >
-                                                                <img
-                                                                    src={image2}
-                                                                    alt="Latest jewelry designs"
-                                                                    className="public-dropdown-image"
-                                                                    onError={(e) => {
-                                                                        e.target.style.display = 'none';
-                                                                    }}
-                                                                />
-                                                                <div className="public-image-overlay">
-                                                                    <span>Latest Designs</span>
-                                                                </div>
-                                                            </motion.div>
-                                                            <motion.div
-                                                                className="public-dropdown-featured-text"
-                                                                initial={{ opacity: 0, scale: 0.9 }}
-                                                                animate={{ opacity: 1, scale: 1 }}
-                                                                transition={{ delay: 0.4, duration: 0.3 }}
-                                                                whileHover={{ scale: 1.05 }}
-                                                            >
-                                                                <div className="public-featured-number">3500+</div>
-                                                                <div className="public-featured-label">Unique Designs</div>
-                                                            </motion.div>
-                                                        </motion.div>
-                                                    )}
                                                 </div>
                                             </motion.div>
                                         )}
