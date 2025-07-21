@@ -29,6 +29,8 @@ import { PendingOrdersPage, ShippedOrdersPage, DeliveredOrdersPage, CancelledOrd
 import EstimationProductsPage from '../../admin/pages/product/manage/EstimationProductsPage';
 import './AdminRoutes.css';
 import OrderHistoryPage from '../../admin/pages/order/todayOrders';
+import AddCategoryPage from '../../admin/pages/category/add/AddCategoryPage';
+import ManageCategoriesPage from '../../admin/pages/category/manage/ManageCategoriesPage';
 
 const AdminRoutes = () => {
     const { isSidebarOpen, setIsSidebarOpen, themeMode } = useContext(MyContext);
@@ -88,6 +90,8 @@ const AdminRoutes = () => {
                         <Route path="product/itemManage" element={<ProtectedRoute allowedRoles={allowedRoles}><EstimationProductsPage /></ProtectedRoute>} />
                         <Route path="banner/add" element={<ProtectedRoute allowedRoles={allowedRoles}><AddBanner /></ProtectedRoute>} />
                         <Route path="banner/manage" element={<ProtectedRoute allowedRoles={allowedRoles}><ManageBanner /></ProtectedRoute>} />
+                        <Route path="category/add" element={<ProtectedRoute allowedRoles={allowedRoles}><AddCategoryPage /></ProtectedRoute>} />
+                        <Route path="category/manage" element={<ProtectedRoute allowedRoles={allowedRoles}><ManageCategoriesPage /></ProtectedRoute>} />
                         <Route path="video/add" element={<ProtectedRoute allowedRoles={allowedRoles}><AddVideos /></ProtectedRoute>} />
                         <Route path="video/manage" element={<ProtectedRoute allowedRoles={allowedRoles}><ManageVideos /></ProtectedRoute>} />
                         <Route path="rates/add" element={<ProtectedRoute allowedRoles={allowedRoles}><AddRates /></ProtectedRoute>} />

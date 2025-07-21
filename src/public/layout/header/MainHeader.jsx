@@ -77,7 +77,6 @@ const MainHeader = ({
                                     >
                                         <FaHeart className="public-wishlist-icon" />
                                     </motion.div>
-                                    <span className="public-wishlist-text">Wishlist</span>
                                     {wishlistCount > 0 && (
                                         <motion.span
                                             className="public-wishlist-badge"
@@ -106,7 +105,6 @@ const MainHeader = ({
                                     >
                                         <FaShoppingCart className="public-cart-icon" />
                                     </motion.div>
-                                    <span className="public-cart-text">Cart</span>
                                     {cartCount > 0 && (
                                         <motion.span
                                             className="public-cart-badge"

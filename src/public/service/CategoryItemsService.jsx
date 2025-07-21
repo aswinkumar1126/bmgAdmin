@@ -36,3 +36,14 @@ export const getItemFilter = async ({ itemId, itemName, page = 1, pageSize = 20 
         throw error;
     }
   };
+
+  export const getCategory = async()=>{
+    try{
+        const response = await PublicUrl.get('/product/items/categories');
+        return response.data;
+    }
+    catch(error){
+        console.error("Error fetching Categories List");
+        throw error;
+    }
+  }

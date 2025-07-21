@@ -1,9 +1,9 @@
 import PublicUrl from '../api/publicUrl';
 
-export const getAllProducts = async (metalId = '', page = 1, pageSize = 50) => {
+export const getAllProducts = async (catname = '', page = 1, pageSize = 50) => {
     const response = await PublicUrl.get('/product/getAllDetails', {
         params: {
-            metalId,
+            catname,
             page,
             pageSize,
         },

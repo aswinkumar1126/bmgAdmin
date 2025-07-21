@@ -1,0 +1,18 @@
+.hero-image-section {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+}
+
+.hero-image {
+    width: 100%;;
+    /* Adjust max width as per your layout */
+    height: 750px;
+    /* 2:1.5 ratio = 1000px width : 750px height */
+    object-fit: cover;
+    display: block;
+}

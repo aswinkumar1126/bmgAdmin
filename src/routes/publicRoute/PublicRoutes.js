@@ -52,7 +52,7 @@ const PublicRoutes = () => {
                     <Route path="contact" element={<Contact />} />
                     <Route path="forgot-password" element={<ForgotPasswordPage />} />
                     <Route path="reset-password" element={<ResetPasswordPage />} />
-                    <Route path="/search" element={<EnhancedProductDisplay />} />
+                    <Route path="search" element={<EnhancedProductDisplay />} />
 
                     {/* Protected */}
                     <Route path="product/:sno" element={<UserPrivateRoute><ProductDetails /></UserPrivateRoute>} />

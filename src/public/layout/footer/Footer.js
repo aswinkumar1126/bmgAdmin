@@ -32,14 +32,14 @@ const Footer = () => {
     const itemVariants = {
         hidden: { opacity: 0, y: 10 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-        hover: { x: 5, color: '#d4a017', transition: { duration: 0.2 } },
+        hover: { x: 5, color: '#d4af37', transition: { duration: 0.2 } },
         tap: { scale: 0.95 },
     };
 
     const socialIconVariants = {
         hover: {
             scale: 1.15,
-            color: '#d4a017',
+            color: '#b89c30',
             y: -3,
             transition: { type: 'spring', stiffness: 400, damping: 10 },
         },
@@ -192,7 +192,7 @@ const Footer = () => {
                         ].map((social, index) => (
                             <motion.a
                                 key={index}
-                                href={social}
+                                href={social.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 variants={socialIconVariants}
@@ -204,7 +204,7 @@ const Footer = () => {
                         ))}
                     </motion.div>
 
-                    <p className="copy Rights">© 2025 BMG Jewellery Pvt Ltd. All rights reserved.</p>
+                    <p className="copy-rights">© 2025 BMG Jewellery Pvt Ltd. All rights reserved.</p>
                     <p className="design">
                         Powered by{' '}
                         <a href="https://www.brightechsoftware.com" target="_blank" className="designed-by">

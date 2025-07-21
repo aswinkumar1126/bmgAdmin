@@ -13,6 +13,7 @@ import ProtectedRecentlyViewedWrapper from "../recentlyViewed/ProtectedRecentlyV
 import RatesPage from "../metalRates/metalRates";
 import NewArrivalProductService from "../../service/newArrivals";
 import NewArrivalsPage from "../newAriivals/NewArrivalsPage";
+import HeroImage from "../hero/HeroImage";
 
 function Home() {
 
@@ -61,6 +62,7 @@ function Home() {
 
     return (
         <div className="home-section">
+            {/* <HeroImage /> */}
             <Banner images={bannerData} loading={bannersLoading} />
 
             {/* Show RatesPage only on smaller screens */}
@@ -76,7 +78,7 @@ function Home() {
 
             
 
-            <NewArrivalsPage />
+            {/* <NewArrivalsPage /> */}
             
             <ProtectedRecentlyViewedWrapper />
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCreatePaymentLinkMutation } from '../../hook/payment/useCreatePaymentLinkMutation';
 import { useOrderHistory } from '../../hook/order/useOrderHistoryQuery';
+import './PaymentPage.css';
 
 const PaymentPage = () => {
     const { orderId } = useParams();
@@ -71,10 +72,30 @@ const PaymentPage = () => {
         }
     }, [orderId, orders, isLoading, isError, refetch, retryCount, createPaymentLink, navigate, maxRetries]);
 
+    if (isError && retryCount >= maxRetries) {
+        return (
+            <div className="payment-error-state">
+                <h3>Payment Error</h3>
+                <p>We couldn't process your payment request. Please try again later.</p>
+                <button
+                    onClick={() => navigate('/orders')}
+                    className="back-to-orders-button"
+                >
+                    Back to Orders
+                </button>
+            </div>
+        );
+    }
     return (
         <div className="payment-loading-page">
+            <div className="payment-loading-spinner"></div>
             <h2>Generating Payment Link...</h2>
-            <p>Please wait, redirecting to Razorpay.</p>
+            <p>Please wait while we redirect you to the secure payment gateway.</p>
+            {retryCount > 0 && (
+                <p className="retry-message">
+                    Attempting to connect... (Try {retryCount}/{maxRetries})
+                </p>
+            )}
         </div>
     );
 };

@@ -2,21 +2,36 @@ import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { useCategories } from "../../hook/category/useCategoryQuery";
 import "./CategorySection.css";
+
+// Import icons
 import goldIcon from "../../assets/icons/gold.jpg";
 import silverIcon from "../../assets/icons/silver.jpg";
 import diamondIcon from "../../assets/icons/pooja.jpg";
 import allProductsIcon from "../../assets/icons/gift.jpg";
 import others from '../../assets/icons/other.jpg';
 
-const jewelryCategories = [
-    { label: "Silver Gold Polish", id: "G", icon: goldIcon },
-    { label: "Silver Jewels", id: "S", icon: silverIcon },
-    { label: "Pooja sets", id: "D", icon: diamondIcon },
-    { label: "Gift Items", id: "O", icon: allProductsIcon },
-    { label: 'Others', id: "T", icon: others }
-];
+// Format name helper
+const formatForCategoryDisplay = (str) => {
+    if (!str || typeof str !== 'string') return 'Unnamed';
+    return str.replace(/_/g, ' ').toLowerCase();
+};
 
+const getIconForCategory = (name) => {
+    if (!name || typeof name !== 'string') return others;
+
+    const formatted = name.toLowerCase();
+
+    if (formatted.includes("gold")) return goldIcon;
+    if (formatted.includes("silver")) return silverIcon;
+    if (formatted.includes("pooja")) return diamondIcon;
+    if (formatted.includes("gift")) return allProductsIcon;
+    if (formatted.includes("offer")) return allProductsIcon;
+    return others;
+};
+  
+// Animations
 const containerAnimation = {
     hidden: { opacity: 0 },
     visible: {
@@ -28,7 +43,7 @@ const containerAnimation = {
     }
 };
 
-const cardAnimation = {
+const itemAnimation = {
     hidden: { y: 20, opacity: 0 },
     visible: {
         y: 0,
@@ -38,12 +53,23 @@ const cardAnimation = {
             stiffness: 100,
             damping: 10
         }
+    },
+    hover: {
+        scale: 1.05,
+        transition: { duration: 0.3, ease: "easeOut" }
+    },
+    tap: {
+        scale: 0.95,
+        transition: { duration: 0.2, ease: "easeOut" }
     }
 };
 
 function CategorySection() {
     const navigate = useNavigate();
     const gridRef = useRef(null);
+
+    const { data: categories = [], isLoading } = useCategories();
+    console.log(categories)
 
     const scroll = (direction) => {
         if (gridRef.current) {
@@ -56,53 +82,87 @@ function CategorySection() {
     };
 
     return (
-        <section className="jewelry-categories-section">
-            <div className="jewelry-categories-container">
+        <section className="category-section">
+            <div className="category-container">
                 <motion.h2
-                    className="jewelry-categories-title"
+                    className="category-title"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
                 >
-                    Our Collections
+                    Shop Categories
                 </motion.h2>
 
-            
+                <div className="category-scroll-container">
+                    <button className="scroll-button left" onClick={() => scroll('left')}>
+                        <FiChevronLeft />
+                    </button>
 
-                <motion.div
-                    className="jewelry-categories-grid"
-                    ref={gridRef}
-                    variants={containerAnimation}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: "0px 0px -50px 0px" }}
-                >
-                    {jewelryCategories.map((category) => (
-                        <motion.div
-                            key={category.id}
-                            className="jewelry-category-card"
-                            variants={cardAnimation}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.98 }}
-                            onClick={() => navigate(`/products?metalId=${category.id}`)}
-                        >
-                            <div className="jewelry-category-img-container">
-                                <img
-                                    src={category.icon}
-                                    alt={category.label}
-                                    className="jewelry-category-img"
-                                    loading="lazy"
-                                />
-                                <div className="jewelry-category-shine"></div>
-                            </div>
-                            <span className="jewelry-category-name">
-                                {category.label}
-                            </span>
-                        </motion.div>
-                    ))}
-                </motion.div>
+                    <motion.div
+                        className="category-grid"
+                        ref={gridRef}
+                        variants={containerAnimation}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={{ once: true }}
+                    >
+                        {isLoading ? (
+                            <p>Loading categories...</p> // You can use a skeleton here
+                        ) : (
+                            categories.map((categoryName) => {
+                                const icon = getIconForCategory(categoryName);
+                                const label = formatForCategoryDisplay(categoryName);
 
-              
+                                console.log(label);
+
+                                return (
+                                    <motion.div
+                                        key={categoryName}
+                                        className="category-item"
+                                        variants={itemAnimation}
+                                        whileHover="hover"
+                                        whileTap="tap"
+                                        onClick={() => {
+                                            const element = document.getElementById(`cat-${categoryName}`);
+                                            if (element) {
+                                                element.classList.add('category-flash');
+                                                setTimeout(() => {
+                                                    element.classList.remove('category-flash');
+                                                    navigate(`/products?catname=${label}`);
+                                                }, 300);
+                                            } else {
+                                                navigate(`/products?catname=${label}`);
+                                            }
+                                        }}
+                                        id={`cat-${categoryName}`}
+                                    >
+                                        <div className="category-image-wrapper">
+                                            <img
+                                                src={icon}
+                                                alt={label}
+                                                className="category-image"
+                                                loading="lazy"
+                                            />
+                                            <div className="category-shine"></div>
+                                        </div>
+                                        <motion.span
+                                            className="category-label"
+                                            whileHover={{ color: "#d4af37" }}
+                                            transition={{ duration: 0.3 }}
+                                        >
+                                            {label}
+                                        </motion.span>
+                                    </motion.div>
+                                );
+                            
+                            })
+                        )}
+                    </motion.div>
+
+                    <button className="scroll-button right" onClick={() => scroll('right')}>
+                        <FiChevronRight />
+                    </button>
+                </div>
             </div>
         </section>
     );

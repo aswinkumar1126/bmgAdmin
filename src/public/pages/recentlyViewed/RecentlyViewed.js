@@ -37,7 +37,8 @@ const RecentlyViewedPage = () => {
     }, []);
 
     const isMobile = windowSize.width <= 768;
-    const productsPerPage = isMobile ? 2 : 4;
+    const isTablet = windowSize.width <= 1024;
+    const productsPerPage = isMobile ? 2 : isTablet ? 3 : 4;
 
     // Data fetching with optimized caching
     const {
@@ -118,30 +119,30 @@ const RecentlyViewedPage = () => {
     const isLoading = isSnoLoading || (productQueries.some(q => q.isLoading) && products.length === 0);
 
     return (
-        <section className="recently-viewed-section">
-            <div className="recently-viewed-container">
-                <header className="section-header">
-                    <div className="header-title-wrapper">
-                        <FiClock className="header-icon" />
-                        <h2 className="section-title">Recently Viewed</h2>
+        <section className="recently-viewed__section">
+            <div className="recently-viewed__container">
+                <header className="recently-viewed__header">
+                    <div className="recently-viewed__header-title-wrapper">
+                        <FiClock className="recently-viewed__header-icon" />
+                        <h2 className="recently-viewed__title">Recently Viewed</h2>
                         {!isLoading && products.length > 0 && (
-                            <span className="items-count-badge">
+                            <span className="recently-viewed__items-count">
                                 {products.length} {products.length === 1 ? 'item' : 'items'}
                             </span>
                         )}
                     </div>
-                    <p className="section-subtitle">
+                    <p className="recently-viewed__subtitle">
                         Your personal jewelry browsing history
                     </p>
                 </header>
 
                 <div
-                    className="carousel-container"
+                    className="recently-viewed__carousel"
                     onMouseEnter={() => !isMobile && setShowArrows(true)}
                     onMouseLeave={() => !isMobile && setShowArrows(false)}
                 >
                     {isLoading ? (
-                        <div className="products-grid loading">
+                        <div className="recently-viewed__products-grid recently-viewed__products-grid--loading">
                             {[...Array(productsPerPage)].map((_, i) => (
                                 <SkeletonLoader key={`skeleton-${i}`} height={320} />
                             ))}
@@ -151,7 +152,7 @@ const RecentlyViewedPage = () => {
                             {!isMobile && showArrows && totalProducts > productsPerPage && (
                                 <>
                                     <button
-                                        className={`carousel-arrow left-arrow ${currentIndex === 0 ? 'disabled' : ''}`}
+                                        className={`recently-viewed__carousel-arrow recently-viewed__carousel-arrow--left ${currentIndex === 0 ? 'disabled' : ''}`}
                                         onClick={handlePrev}
                                         disabled={currentIndex === 0}
                                         aria-label="Previous items"
@@ -159,7 +160,7 @@ const RecentlyViewedPage = () => {
                                         <FaArrowLeft />
                                     </button>
                                     <button
-                                        className={`carousel-arrow right-arrow ${currentIndex >= maxIndex ? 'disabled' : ''}`}
+                                        className={`recently-viewed__carousel-arrow recently-viewed__carousel-arrow--right ${currentIndex >= maxIndex ? 'disabled' : ''}`}
                                         onClick={handleNext}
                                         disabled={currentIndex >= maxIndex}
                                         aria-label="Next items"
@@ -169,7 +170,7 @@ const RecentlyViewedPage = () => {
                                 </>
                             )}
 
-                            <div className="products-grid">
+                            <div className="recently-viewed__products-grid">
                                 {visibleProducts.map((product) =>
                                     isMobile ? (
                                         <MobileProductCard
@@ -180,7 +181,7 @@ const RecentlyViewedPage = () => {
                                         />
                                     ) : (
                                         <ProductCard
-                                                key={`desktop-${product.SNO ?? Math.random()}`}
+                                            key={`desktop-${product.SNO ?? Math.random()}`}
                                             product={product}
                                             onQuickView={() => navigate(`/product/${product.SNO}`)}
                                             onAddToCart={() => handleAddToCart(product)}
@@ -190,27 +191,28 @@ const RecentlyViewedPage = () => {
                             </div>
 
                             {isMobile && totalProducts > productsPerPage && (
-                                <div className="mobile-carousel-indicators">
+                                <div className="recently-viewed__mobile-controls">
                                     <button
-                                        className={`nav-button prev ${currentIndex === 0 ? 'disabled' : ''}`}
+                                        className={`recently-viewed__mobile-nav-btn recently-viewed__mobile-nav-btn--prev ${currentIndex === 0 ? 'disabled' : ''}`}
                                         onClick={handlePrev}
                                         disabled={currentIndex === 0}
                                     >
                                         <FaArrowLeft />
                                     </button>
-                                    <div className="dots-container">
+                                    <div className="recently-viewed__pagination-dots">
                                         {Array.from({
                                             length: Math.ceil(totalProducts / productsPerPage)
                                         }).map((_, i) => (
                                             <button
                                                 key={`dot-${i}`}
-                                                className={`dot ${i === Math.floor(currentIndex / productsPerPage) ? 'active' : ''}`}
+                                                className={`recently-viewed__pagination-dot ${i === Math.floor(currentIndex / productsPerPage) ? 'active' : ''}`}
                                                 onClick={() => setCurrentIndex(i * productsPerPage)}
+                                                aria-label={`Go to page ${i + 1}`}
                                             />
                                         ))}
                                     </div>
                                     <button
-                                        className={`nav-button next ${currentIndex >= maxIndex ? 'disabled' : ''}`}
+                                        className={`recently-viewed__mobile-nav-btn recently-viewed__mobile-nav-btn--next ${currentIndex >= maxIndex ? 'disabled' : ''}`}
                                         onClick={handleNext}
                                         disabled={currentIndex >= maxIndex}
                                     >
@@ -220,15 +222,15 @@ const RecentlyViewedPage = () => {
                             )}
                         </>
                     ) : (
-                        <div className="empty-state">
-                            <div className="empty-state-content">
+                        <div className="recently-viewed__empty-state">
+                            <div className="recently-viewed__empty-content">
                                 <img
                                     src="/images/no-items.svg"
                                     alt="No recently viewed items"
-                                    className="empty-state-image"
+                                    className="recently-viewed__empty-image"
                                 />
-                                <h3 className="empty-state-title">No Recently Viewed Items</h3>
-                                <p className="empty-state-message">
+                                <h3 className="recently-viewed__empty-title">No Recently Viewed Items</h3>
+                                <p className="recently-viewed__empty-message">
                                     Items you view will appear here for easy access
                                 </p>
                                 <Button
@@ -236,7 +238,7 @@ const RecentlyViewedPage = () => {
                                     onClick={() => navigate('/products')}
                                     variant="primary"
                                     size="medium"
-                                    className="empty-state-button"
+                                    className="recently-viewed__empty-button"
                                 />
                             </div>
                         </div>

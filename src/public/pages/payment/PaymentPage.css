@@ -1,0 +1,125 @@
+/* Payment Page Styles */
+.payment-loading-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    text-align: center;
+    padding: 2rem;
+    background-color: #f9f9f9;
+}
+
+.payment-loading-page h2 {
+    font-size: 2rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+}
+
+.payment-loading-page p {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 2rem;
+    max-width: 500px;
+    line-height: 1.6;
+}
+
+/* Loading Animation */
+.payment-loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(212, 175, 55, 0.2);
+    border-top-color: #d4af37;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 2rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Retry Message */
+.retry-message {
+    margin-top: 1.5rem;
+    color: #777;
+    font-size: 0.9rem;
+}
+
+/* Error State */
+.payment-error-state {
+    background-color: #fff8f8;
+    border: 1px solid #ffdddd;
+    padding: 1.5rem;
+    border-radius: 8px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.payment-error-state h3 {
+    color: #e74c3c;
+    margin-bottom: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .payment-loading-page {
+        min-height: 60vh;
+        padding: 1.5rem;
+    }
+
+    .payment-loading-page h2 {
+        font-size: 1.5rem;
+    }
+
+    .payment-loading-page p {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .payment-loading-page {
+        padding: 1rem;
+    }
+
+    .payment-loading-spinner {
+        width: 40px;
+        height: 40px;
+        border-width: 4px;
+    }
+}
+/* Button Styles */
+.back-to-orders-button {
+    padding: 0.75rem 1.5rem;
+    background-color: #d4af37;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.back-to-orders-button:hover {
+    background-color: #b5942b;
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.payment-loading-page,
+.payment-error-state {
+    animation: fadeIn 0.5s ease-out;
+}
