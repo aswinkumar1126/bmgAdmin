@@ -226,7 +226,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     transition: color var(--transition-speed) ease;
-    font-family: var(--font-family-secondary);
+    font-family: var(--font-family-primary);
     /* Playfair Display for name */
     letter-spacing: 0.3px;
 }

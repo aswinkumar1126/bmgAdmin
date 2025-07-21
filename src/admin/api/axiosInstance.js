@@ -1,12 +1,13 @@
 // src/api/axiosInstance.js
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8081/api/v1';
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
-// console.log(BASE_URL);
+
 
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
+    timeout: 10000,
 });
 
 // ✅ Dynamically attach token from localStorage on every request
@@ -22,4 +23,13 @@ axiosInstance.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
+axiosInstance.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response?.status === 401) {
+            // Handle unauthorized (redirect to login)
+        }
+        return Promise.reject(error);
+    }
+  );
 export default axiosInstance;

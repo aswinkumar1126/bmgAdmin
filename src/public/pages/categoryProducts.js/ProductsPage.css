@@ -1,23 +1,37 @@
-/* Product Listing Page Styles */
+:root {
+    --font-family-primary: 'Lora', serif;
+    --font-family-secondary: 'Playfair Display', serif;
+    --font-family-ui: 'Inter', sans-serif;
+    --primary-color: #2c3e50;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --primary-light: #e6f0fa;
+    --background-light: #f8fafc;
+    --border-color: #e5e7eb;
+    --accent-color: #d4af37;
+}
+
 .product-listing-container {
     max-width: 1440px;
     margin: 0 auto;
     padding: 2rem 1.5rem;
     min-height: calc(100vh - 200px);
+    font-family: var(--font-family-ui);
 }
 
 .product-listing-header {
     margin-bottom: 2.5rem;
     padding-bottom: 1.5rem;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .product-breadcrumb-nav {
-    font-size: 0.9rem;
-    color: #777;
+    font-size: 0.8rem;
+    color: var(--text-muted);
     margin-bottom: 0.5rem;
     display: flex;
     gap: 0.5rem;
+    font-family: var(--font-family-ui);
 }
 
 .breadcrumb-link {
@@ -26,36 +40,38 @@
 }
 
 .breadcrumb-link:hover {
-    color: #d4af37;
+    color: var(--accent-color);
 }
 
 .breadcrumb-separator {
-    color: #ccc;
+    color: var(--border-color);
 }
 
 .breadcrumb-current {
-    color: #333;
+    color: var(--text-dark);
     font-weight: 500;
 }
 
 .product-category-title {
-    font-size: 2.2rem;
-    font-weight: 600;
-    color: #2c3e50;
-    margin: 0.5rem 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0.3rem 0;
     display: flex;
     align-items: center;
     gap: 1.5rem;
     flex-wrap: wrap;
+    font-family: var(--font-family-secondary);
 }
 
 .product-count-badge {
-    font-size: 1rem;
-    background: #d4af37;
+    font-size: 0.7rem;
+    background: var(--accent-color);
     color: white;
     padding: 0.35rem 1rem;
     border-radius: 20px;
     font-weight: 500;
+    font-family: var(--font-family-ui);
 }
 
 .product-listing-content {
@@ -91,8 +107,9 @@
 }
 
 .product-loading-text {
-    color: #777;
+    color: var(--text-muted);
     font-size: 1.1rem;
+    font-family: var(--font-family-primary);
 }
 
 /* Empty State */
@@ -108,32 +125,35 @@
 .empty-state-content {
     max-width: 500px;
     padding: 2rem;
-    background: white;
+    background: var(--background-light);
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .empty-state-title {
     font-size: 1.5rem;
-    color: #2c3e50;
+    color: var(--text-dark);
     margin-bottom: 1rem;
+    font-family: var(--font-family-secondary);
 }
 
 .empty-state-message {
-    color: #777;
+    color: var(--text-muted);
     font-size: 1rem;
     margin-bottom: 1.5rem;
+    font-family: var(--font-family-primary);
 }
 
 .browse-all-button {
     padding: 0.75rem 1.5rem;
-    background: #d4af37;
+    background: var(--accent-color);
     color: white;
     border: none;
     border-radius: 8px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
+    font-family: var(--font-family-ui);
 }
 
 .browse-all-button:hover {
@@ -154,19 +174,20 @@
 .pagination-nav-button {
     padding: 0.75rem 1.5rem;
     background: white;
-    color: #2c3e50;
-    border: 1px solid #e0e0e0;
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
     min-width: 100px;
+    font-family: var(--font-family-ui);
 }
 
 .pagination-nav-button:hover:not(:disabled) {
-    background: #d4af37;
+    background: var(--accent-color);
     color: white;
-    border-color: #d4af37;
+    border-color: var(--accent-color);
 }
 
 .pagination-nav-button:disabled {
@@ -176,7 +197,8 @@
 
 .current-page-indicator {
     font-size: 0.9rem;
-    color: #777;
+    color: var(--text-muted);
+    font-family: var(--font-family-ui);
 }
 
 /* Responsive Adjustments */
@@ -186,7 +208,7 @@
     }
 
     .product-category-title {
-        font-size: 1.8rem;
+        font-size: 1.3rem;
     }
 }
 
@@ -196,12 +218,12 @@
     }
 
     .product-category-title {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         gap: 1rem;
     }
 
     .product-count-badge {
-        font-size: 0.9rem;
+        font-size: 0.6rem;
         padding: 0.25rem 0.75rem;
     }
 
@@ -223,7 +245,8 @@
 
 @media (max-width: 480px) {
     .product-card-grid.mobile-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
     }
 
     .product-category-title {

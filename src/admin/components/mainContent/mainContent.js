@@ -8,7 +8,7 @@ const MainContent = () => {
         <main>   
             <Welcome />   
             <DashboardCards />
-            <ChartsSectionWrapper />
+            {/* <ChartsSectionWrapper /> */}
         </main>
     );
 };

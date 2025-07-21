@@ -2,22 +2,36 @@ import React, { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { useCategories } from "../../hook/category/useCategoryQuery";
 import "./CategorySection.css";
+
+// Import icons
 import goldIcon from "../../assets/icons/gold.jpg";
 import silverIcon from "../../assets/icons/silver.jpg";
 import diamondIcon from "../../assets/icons/pooja.jpg";
 import allProductsIcon from "../../assets/icons/gift.jpg";
 import others from '../../assets/icons/other.jpg';
 
-const jewelryCategories = [
-    { label: "Silver Gold Polish", id: "Silver Jewellery Gold Polish", icon: goldIcon },
-    { label: "Silver Jewels", id: "silver jewellery", icon: silverIcon },
-    { label: "Pooja sets", id: "pooja set", icon: diamondIcon },
-    { label: "Gift Items", id: "gift", icon: allProductsIcon },
-    { label: "Offers", id: "offer", icon: allProductsIcon },
-    { label: "Others", id: "others", icon: others }
-];
+// Format name helper
+const formatForCategoryDisplay = (str) => {
+    if (!str || typeof str !== 'string') return 'Unnamed';
+    return str.replace(/_/g, ' ').toLowerCase();
+};
 
+const getIconForCategory = (name) => {
+    if (!name || typeof name !== 'string') return others;
+
+    const formatted = name.toLowerCase();
+
+    if (formatted.includes("gold")) return goldIcon;
+    if (formatted.includes("silver")) return silverIcon;
+    if (formatted.includes("pooja")) return diamondIcon;
+    if (formatted.includes("gift")) return allProductsIcon;
+    if (formatted.includes("offer")) return allProductsIcon;
+    return others;
+};
+  
+// Animations
 const containerAnimation = {
     hidden: { opacity: 0 },
     visible: {
@@ -42,23 +56,20 @@ const itemAnimation = {
     },
     hover: {
         scale: 1.05,
-        transition: {
-            duration: 0.3,
-            ease: "easeOut"
-        }
+        transition: { duration: 0.3, ease: "easeOut" }
     },
     tap: {
         scale: 0.95,
-        transition: {
-            duration: 0.2,
-            ease: "easeOut"
-        }
+        transition: { duration: 0.2, ease: "easeOut" }
     }
 };
 
 function CategorySection() {
     const navigate = useNavigate();
     const gridRef = useRef(null);
+
+    const { data: categories = [], isLoading } = useCategories();
+    console.log(categories)
 
     const scroll = (direction) => {
         if (gridRef.current) {
@@ -95,45 +106,57 @@ function CategorySection() {
                         whileInView="visible"
                         viewport={{ once: true }}
                     >
-                        {jewelryCategories.map((category) => (
-                            <motion.div
-                                key={category.id}
-                                className="category-item"
-                                variants={itemAnimation}
-                                whileHover="hover"
-                                whileTap="tap"
-                                onClick={() => {
-                                    const element = document.getElementById(`cat-${category.id}`);
-                                    if (element) {
-                                        element.classList.add('category-flash');
-                                        setTimeout(() => {
-                                            element.classList.remove('category-flash');
-                                            navigate(`/products?catname=${category.id}`);
-                                        }, 300);
-                                    } else {
-                                        navigate(`/products?catname=${category.id}`);
-                                    }
-                                }}
-                                id={`cat-${category.id}`}
-                            >
-                                <div className="category-image-wrapper">
-                                    <img
-                                        src={category.icon}
-                                        alt={category.label}
-                                        className="category-image"
-                                        loading="lazy"
-                                    />
-                                    <div className="category-shine"></div>
-                                </div>
-                                <motion.span
-                                    className="category-label"
-                                    whileHover={{ color: "#d4af37" }}
-                                    transition={{ duration: 0.3 }}
-                                >
-                                    {category.label}
-                                </motion.span>
-                            </motion.div>
-                        ))}
+                        {isLoading ? (
+                            <p>Loading categories...</p> // You can use a skeleton here
+                        ) : (
+                            categories.map((categoryName) => {
+                                const icon = getIconForCategory(categoryName);
+                                const label = formatForCategoryDisplay(categoryName);
+
+                                console.log(label);
+
+                                return (
+                                    <motion.div
+                                        key={categoryName}
+                                        className="category-item"
+                                        variants={itemAnimation}
+                                        whileHover="hover"
+                                        whileTap="tap"
+                                        onClick={() => {
+                                            const element = document.getElementById(`cat-${categoryName}`);
+                                            if (element) {
+                                                element.classList.add('category-flash');
+                                                setTimeout(() => {
+                                                    element.classList.remove('category-flash');
+                                                    navigate(`/products?catname=${label}`);
+                                                }, 300);
+                                            } else {
+                                                navigate(`/products?catname=${label}`);
+                                            }
+                                        }}
+                                        id={`cat-${categoryName}`}
+                                    >
+                                        <div className="category-image-wrapper">
+                                            <img
+                                                src={icon}
+                                                alt={label}
+                                                className="category-image"
+                                                loading="lazy"
+                                            />
+                                            <div className="category-shine"></div>
+                                        </div>
+                                        <motion.span
+                                            className="category-label"
+                                            whileHover={{ color: "#d4af37" }}
+                                            transition={{ duration: 0.3 }}
+                                        >
+                                            {label}
+                                        </motion.span>
+                                    </motion.div>
+                                );
+                            
+                            })
+                        )}
                     </motion.div>
 
                     <button className="scroll-button right" onClick={() => scroll('right')}>
